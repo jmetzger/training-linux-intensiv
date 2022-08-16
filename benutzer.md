@@ -1,4 +1,4 @@
-## 6 Benutzer
+## Benutzer
 
 ### Wer bin ich (der eingeloggte Nutzer) ? 
 
