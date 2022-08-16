@@ -62,7 +62,7 @@
      * [Dienste](dienste.md) 
   1. Timer 
      * [Beispiel - Regelmäßiges Scannen mit nmap](nmap-timer.md)  
-  1. Fragen,Tipps und Tricks
+  1. Fragen,Tipps und Tricks / Howtos
      * [Questions](questions.md)
      * [Tipps und Tricks](tipps-tricks.md) 
-
+     * [Advanced Bash Scripting](https://tldp.org/LDP/abs/html/)
