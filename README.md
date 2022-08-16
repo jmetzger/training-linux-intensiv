@@ -11,6 +11,7 @@
      * [Arbeiten mit pipes](pipes-grep.md)
      * [Arbeiten mit grep](grep.md)
   1. Bash und Bash Programmierung 
+     * [Bash - Variablen](variables.md))
      * [Bash - Grundlegende Befehle der Systemadministration](grundlegende-befehle.md)
      * [Bash Programmierung](bash-programmierung.md)
   1. Kernel
