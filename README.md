@@ -7,6 +7,9 @@
   1. Systemd und Journalctl  
      * [Systemd](systemd.md)
      * [journalctl](journalctl.md)
+  1. Arbeiten auf der Bash 
+     * [Arbeiten mit pipes und grep](pipes-grep.md)
+     
   1. Bash und Bash Programmierung 
      * [Bash - Grundlegende Befehle der Systemadministration](grundlegende-befehle.md)
      * [Bash Programmierung](bash-programmierung.md)
