@@ -4,8 +4,9 @@
 
   1. Grundlagen
      * [Grundlagen](grundlagen.md)
-  1. Systemd und Journalctl  
+  1. Systemd und Journalctl (Dienste verwalten)
      * [Systemd](systemd.md)
+     * [systemctl](systemctl.md)
      * [journalctl](journalctl.md)
   1. Arbeiten auf der Bash und unixtools
      * [Arbeiten mit pipes](pipes-grep.md)
