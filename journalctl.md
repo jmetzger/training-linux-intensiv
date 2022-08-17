@@ -23,6 +23,10 @@ journalctl --since today
 # nur Stunde geht nicht
 journalctl --since "2022-08-17 00:05"
 
+# nur neuen Sachen / Veränderungen ausgeben
+journalctl -f -u apache2.service 
+
+
 ```
 
 ## Help-pages 
