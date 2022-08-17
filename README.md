@@ -62,8 +62,9 @@
      * [Hilfreiche Programme](hilfreiche-programme.md) 
   1. Prozesse
      * [Prozesse](prozesse.md)
-  1. Dienste verwalten 
-     * [Dienste](dienste.md) 
+  1. Dienste verwalten /debuggen 
+     * [Dienste](dienste.md)
+     * [Dienste debuggen](debug-service.md)
   1. Timer 
      * [Beispiel - Regelmäßiges Scannen mit nmap](nmap-timer.md)  
   1. Fragen,Tipps und Tricks / Howtos
