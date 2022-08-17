@@ -24,6 +24,7 @@
      * [Grundlegende Dateioperationen](grundlegende-dateioperationen.md)
      * [Ausgabe von Dateien](ausgabe-von-dateien.md)
      * [Ausgabe von gepackten Files / Entpacken von Files](ausgabe-gepackte-files.md)
+     * [Arbeiten mit Dateien und Verzeichnissen](files-dir.md)
   1. Suche und Filtern 
      * [Suche](suche.md)
      * [Übung mit Dateien filtern](uebung-dateien.md) 
