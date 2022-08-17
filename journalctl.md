@@ -16,6 +16,12 @@ journalctl _PID=5
 
 # alles seit gestern 
 journalctl --since yesterday 
+journalctl --since now 
+journalctl --since today
+# mit datum -> hier wichtig, dass richtige format
+# Mindestens Tag oder Tag und Uhrzeit (ohne sekunden)
+# nur Stunde geht nicht
+journalctl --since "2022-08-17 00:05"
 
 ```
 
