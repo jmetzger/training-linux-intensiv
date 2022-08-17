@@ -10,6 +10,7 @@ lines 1-1/1 (END)
 
 ## Journal persistent 
 
+  * Update: Ubuntu 22.04 ist per default persistent !!!
   * Normalerweise (auf den meisten Systemen), überlebt das Journal kein Reboot 
  
 ```
