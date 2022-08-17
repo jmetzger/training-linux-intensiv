@@ -1,5 +1,32 @@
 # Journalctl 
 
+## journalctl 
+
+```
+# ubuntu
+journalctl -u ssh.service 
+# centos
+journalctl -u sshd.service
+
+# sehr schön um alle felder zu sehen 
+journalctl -o json-pretty 
+
+# alles was pid xy
+journalctl _PID=5 
+
+# alles seit gestern 
+journalctl --since yesterday 
+
+```
+
+## Help-pages 
+
+```
+man journalctl
+man systemd.journal-fields
+```
+
+
 ## Show all boots 
 
 ``` 
@@ -28,22 +55,4 @@ systemctl restart systemd-journal-flush.service
 ```
 # in /etc/systemd/journald.conf 
 SystemMaxUse=1G 
-```
-
-## journalctl 
-
-```
-# ubuntu
-journalctl -u ssh 
-# centos
-journalctl -u sshd 
-
-# alles was pid xy
-journalctl _PID=5 
-
-# alles seit gestern 
-journalctl --since yesterday 
-
-# sehr schön um alle felder zu sehen 
-journalctl -o json-pretty 
 ```
