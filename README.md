@@ -53,8 +53,9 @@
      * [ufw](ufw.md) 
   1. Hilfe 
      * [Hilfe](hilfe.md)
-  1. Benutzer verwalten 
+  1. Benutzer verwalten / Rechte
      * [Benutzer](benutzer.md)
+     * [Rechte](rechte.md)
   1. Hilfreiche Programme 
      * [Hilfreiche Programme](hilfreiche-programme.md) 
   1. Prozesse
