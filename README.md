@@ -37,6 +37,7 @@
   1. Paketmanager (Ubuntu/Debian) und Software installieren
      * [apt/dpkg](apt-dpkg.md)
      * [Software installieren](software-installieren.md)
+     * [Aus Quelltext installieren](source-install.md)
      * [dnf](dnf.md) 
      * [unattendend upgrades](unattended-upgrades.md)
   1. Filesysteme  
