@@ -9,6 +9,8 @@
 lsblk 
 
 # Schritt 3: Platte partitionieren 
+parted
+
 mkpart /dev/sdb1
 mklabel gpt
 mkpart data2 ext4 2048s 500M # data2 ist name der Partition bei gpt 
