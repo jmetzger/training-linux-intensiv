@@ -26,12 +26,16 @@ cd /etc/apt/sources.list.d
 
 ```
 # mit Konfigurationsdateien deinstallieren
-apt purge mariadb-server 
+apt purge mariadb-server-10.3
 # Konfgurationsdateien stehen lassen
-apt remove mariadb-server 
+apt remove mariadb-server-10.3 
 
 # Aufräumen / alle Pakete die nicht mehr benötigt werden
+# nur binaries deinstalliren (alles ausser Konfiguration) 
 apt autoremove 
+
+# Abhängige Pakete mit Konfigurationsdateien deinstallieren
+apt autopurge
 ```
 
 ## Pakete händisch mit dpkg installieren 
