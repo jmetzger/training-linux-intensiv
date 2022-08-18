@@ -101,8 +101,6 @@ dpkg -c /usr/src/openssh-server-xyz.deb
 
 ```
 
-# dpkg / apt 
-
 ## Show all files/directories being installed by package 
 
   * Important: without files being created by install-script 
