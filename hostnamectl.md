@@ -1,7 +1,7 @@
 # hostnamectl 
 
 ```
-# please do it root 
+# please do it as root user  
 hostnamectl
 hostnamectl set-hostname server1.training.local 
 # only reflects after new login 
