@@ -14,6 +14,7 @@
      * [Arbeiten mit less](less.md)
   1. Administrationsaufgaben 
      * [Hostname setzen](hostnamectl.md) 
+     * [Neue Festplatte konfigurieren und einbinden](disk-new.md)
      
   1. Bash und Bash Programmierung 
      * [Bash - Variablen](variables.md))
