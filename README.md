@@ -12,6 +12,9 @@
      * [Arbeiten mit pipes](pipes-grep.md)
      * [Arbeiten mit grep](grep.md)
      * [Arbeiten mit less](less.md)
+  1. Administrationsaufgaben 
+     * [Hostname setzen](hostnamectl.md) 
+     
   1. Bash und Bash Programmierung 
      * [Bash - Variablen](variables.md))
      * [Bash - Grundlegende Befehle der Systemadministration](grundlegende-befehle.md)
