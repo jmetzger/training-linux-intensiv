@@ -9,7 +9,8 @@
 lsblk 
 
 # Schritt 3: Platte partitionieren 
-parted
+# sdb platte auswählen
+parted /dev/sdb
 
 mkpart /dev/sdb1
 mklabel gpt
