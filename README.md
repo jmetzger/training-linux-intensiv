@@ -20,6 +20,7 @@
      * [Bash - Variablen](variables.md))
      * [Bash - Grundlegende Befehle der Systemadministration](grundlegende-befehle.md)
      * [Bash Programmierung](bash-programmierung.md)
+     * [Bash script Beispiel](bash-script-beispiel.md)
   1. Kernel
      * [Kernel Parameter](kernel-params.md)
      * [Kernel kompilieren](kernel-kompilieren.md)
