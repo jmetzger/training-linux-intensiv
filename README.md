@@ -16,6 +16,7 @@
      * [Hostname setzen](hostnamectl.md) 
      * [Neue Festplatte konfigurieren und einbinden](disk-new.md)
      * [Upgrade auf nächste Release](release-upgrade.md)
+     * [Auslastungsanalyse Netzwerk, Festplatte, CPU](perf-analyse.md)
   1. Bash und Bash Programmierung 
      * [Bash - Variablen](variables.md))
      * [Bash - Grundlegende Befehle der Systemadministration](grundlegende-befehle.md)
