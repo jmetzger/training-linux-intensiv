@@ -15,5 +15,5 @@ root@ubuntu01:/proc/sys/net/ipv4#
 
 # At boot time 
 
-  * Centos/Redhat: man kernel-command-line
+  * Centos/Redhat: <todo>
   * Ubuntu/Debian: man kernel-command-line 
