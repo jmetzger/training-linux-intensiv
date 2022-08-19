@@ -10,7 +10,11 @@ ufw disable # zur Sicherheit
 ufw status
 # -> inactive # this has to be the case 
 
-# Schritt 2: firewalld 
+# Schritt 2: firewalld
+apt update
+apt install -y firewalld
+
+# Schritt 3: firewalld 
 apt install firewalld 
 systemctl start firewalld 
 systemctl enable firewalld 
