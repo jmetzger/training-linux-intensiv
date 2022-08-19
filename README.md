@@ -12,10 +12,10 @@
      * [Arbeiten mit pipes](pipes-grep.md)
      * [Arbeiten mit grep](grep.md)
      * [Arbeiten mit less](less.md)
-  1. Administrationsaufgaben 
+  1. Administrationsaufgaben / Major-Upgrade
      * [Hostname setzen](hostnamectl.md) 
      * [Neue Festplatte konfigurieren und einbinden](disk-new.md)
-     
+     * [Upgrade auf nächste Release](release-upgrade.md)
   1. Bash und Bash Programmierung 
      * [Bash - Variablen](variables.md))
      * [Bash - Grundlegende Befehle der Systemadministration](grundlegende-befehle.md)
