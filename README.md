@@ -78,3 +78,4 @@
      * [Questions](questions.md)
      * [Tipps und Tricks](tipps-tricks.md) 
      * [Advanced Bash Scripting](https://tldp.org/LDP/abs/html/)
+     * [Bash Scripting](https://tldp.org/HOWTO/Bash-Prog-Intro-HOWTO.html)
