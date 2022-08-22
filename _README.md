@@ -1,15 +1,27 @@
-# Linux Einführung 
+# Linux Intensiv
 
 
 ## Agenda
   1. Grundlagen
      * [Grundlagen](#grundlagen)
-  1. Systemd und Journalctl  
+  1. Systemd und Journalctl (Dienste verwalten)
      * [Systemd](#systemd)
+     * [systemctl](#systemctl)
      * [journalctl](#journalctl)
+  1. Arbeiten auf der Bash und unixtools
+     * [Arbeiten mit pipes](#arbeiten-mit-pipes)
+     * [Arbeiten mit grep](#arbeiten-mit-grep)
+     * [Arbeiten mit less](#arbeiten-mit-less)
+  1. Administrationsaufgaben / Major-Upgrade
+     * [Hostname setzen](#hostname-setzen)
+     * [Neue Festplatte konfigurieren und einbinden](#neue-festplatte-konfigurieren-und-einbinden)
+     * [Upgrade auf nächste Release](#upgrade-auf-nächste-release)
+     * [Auslastungsanalyse Netzwerk, Festplatte, CPU](#auslastungsanalyse-netzwerk-festplatte-cpu)
   1. Bash und Bash Programmierung 
+     * [Bash - Variablen](#bash---variablen)
      * [Bash - Grundlegende Befehle der Systemadministration](#bash---grundlegende-befehle-der-systemadministration)
      * [Bash Programmierung](#bash-programmierung)
+     * [Bash script Beispiel](#bash-script-beispiel)
   1. Kernel
      * [Kernel Parameter](#kernel-parameter)
      * [Kernel kompilieren](#kernel-kompilieren)
@@ -20,12 +32,14 @@
      * [Grundlegende Dateioperationen](#grundlegende-dateioperationen)
      * [Ausgabe von Dateien](#ausgabe-von-dateien)
      * [Ausgabe von gepackten Files / Entpacken von Files](#ausgabe-von-gepackten-files--entpacken-von-files)
+     * [Arbeiten mit Dateien und Verzeichnissen](#arbeiten-mit-dateien-und-verzeichnissen)
   1. Suche und Filtern 
      * [Suche](#suche)
      * [Übung mit Dateien filtern](#übung-mit-dateien-filtern)
   1. Paketmanager (Ubuntu/Debian) und Software installieren
      * [apt/dpkg](#aptdpkg)
      * [Software installieren](#software-installieren)
+     * [Aus Quelltext installieren](#aus-quelltext-installieren)
      * [dnf](#dnf)
      * [unattendend upgrades](#unattendend-upgrades)
   1. Filesysteme  
@@ -48,18 +62,25 @@
      * [ufw](#ufw)
   1. Hilfe 
      * [Hilfe](#hilfe)
-  1. Benutzer verwalten 
+  1. Benutzer verwalten / Rechte
      * [Benutzer](#benutzer)
+     * [Rechte](#rechte)
   1. Hilfreiche Programme 
      * [Hilfreiche Programme](#hilfreiche-programme)
   1. Prozesse
      * [Prozesse](#prozesse)
-  1. Dienste verwalten 
+  1. Dienste verwalten /debuggen 
      * [Dienste](#dienste)
-  1. Fragen,Tipps und Tricks
+     * [Dienste debuggen](#dienste-debuggen)
+  1. Timer 
+     * [Beispiel - Regelmäßiges Scannen mit nmap](#beispiel---regelmäßiges-scannen-mit-nmap)
+  1. Datensicherung   
+     * [Datensicherung mit tar](#datensicherung-mit-tar)
+  1. Fragen,Tipps und Tricks / Howtos
      * [Questions](#questions)
      * [Tipps und Tricks](#tipps-und-tricks)
-
+     * [Advanced Bash Scripting](https://tldp.org/LDP/abs/html/)
+     * [Bash Scripting](https://tldp.org/HOWTO/Bash-Prog-Intro-HOWTO.html)
 
 <div class="page-break"></div>
 
@@ -72,9 +93,7 @@
 
 https://www.computerweekly.com/de/meinung/Das-beste-Server-Betriebssystem-Vergleich-zwischen-Linux-und-Windows#:~:text=Linux%20kommt%20im%20Data%20Center,viele%20verschiedene%20Einsatzzwecke%20zu%20verwenden.
 
-<div class="page-break"></div>
-
-## Systemd und Journalctl  
+## Systemd und Journalctl (Dienste verwalten)
 
 ### Systemd
 
@@ -226,9 +245,175 @@ Tue 2020-11-24 00:00:00 CET  11h left   Mon 2020-11-23 09:28:30 CET  2h 57min ag
 ```
 
 
-<div class="page-break"></div>
+### systemctl
+
+
+### systemctl Beispiele 
+```
+## Status eines Dienstes überprüfen 
+service sshd status 
+systemctl status sshd 
+
+## Wie heisst der Dienst / welche Dienste gibt es ? (nur wenn der service aktiviert ist). 
+systemctl list-units -t service 
+## für apache
+systemctl list-units -t service | grep apache
+## die Abkürzung 
+systemctl -t service | grep apache
+
+systemctl list-unit-files -t service | grep ssh
+
+## Dienst aktivieren
+systemctl enable apache2 
+## Ist Dienst aktiviert 
+systemctl is-enabled apache2
+enabled
+echo $?
+0 # Wenn der Dienst aktiviert ist 
+
+## Dienst deaktivieren (nach Booten nicht starten)
+systemctl disable apache2
+systemctl is-enabled 
+disabled
+echo $?
+1 # 1 wenn nicht aktiviert
+
+## Rebooten des Servers
+## verweist auf systemctl 
+reboot
+systemctl reboot
+shutdown -r now  
+
+## Halt (ohne Strom ausschalten) 
+halt
+systemctl halt 
+shutdown -h now 
+
+## Poweroff 
+poweroff
+systemctl poweroff 
+```
+
+### Wie sehe ich, wie ein Service konfiguriert ist / Dienstekonfiguration anzeigen ? 
+
+```
+## z.B. für Apache2
+systemctl cat apache2.service
+```
+
+### Wie kann ich rausfinden, wie die runlevel als targets heissen ?
+
+```
+cd /lib/systemd/system 
+root@ubuntu2004-104:/lib/systemd/system# ls -la run*target
+lrwxrwxrwx 1 root root 15 Jan  6 20:47 runlevel0.target -> poweroff.target
+lrwxrwxrwx 1 root root 13 Jan  6 20:47 runlevel1.target -> rescue.target
+lrwxrwxrwx 1 root root 17 Jan  6 20:47 runlevel2.target -> multi-user.target
+lrwxrwxrwx 1 root root 17 Jan  6 20:47 runlevel3.target -> multi-user.target
+lrwxrwxrwx 1 root root 17 Jan  6 20:47 runlevel4.target -> multi-user.target
+lrwxrwxrwx 1 root root 16 Jan  6 20:47 runlevel5.target -> graphical.target
+lrwxrwxrwx 1 root root 13 Jan  6 20:47 runlevel6.target -> reboot.target
+```
+
+### Welche Dienste sind aktiviert/deaktiviert 
+```
+systemctl list-unit-files -t service
+```
+
+### Dienste bearbeiten 
+```
+systemctl edit sshd.service 
+## Dann eintragen
+[Unit]
+Description=Jochen's ssh-server 
+## Dann speichern und schliessen (Editor) 
+```
+
+```
+## nur falls es nicht funktioniert !
+## systemctl daemon-reload 
+systemctl status 
+```
+
+### Targets (wechseln und default) 
+
+```
+## Default runlevel/target auslesen 
+systemctl get-default 
+## in target wechseln 
+systemctl isolate multi-user 
+## Default target setzen (nach start/reboot) 
+systemctl set-default multi-user 
+```
+
+### Alle Target anzeigen in die ich reinwechseln kann (isolate) 
+
+```
+## Ubuntu 
+grep -r "AllowIsolate" /lib/systemd/system 
+/lib/systemd/system/reboot.target
+...
+...
+...
+systemctl isolate reboot.target 
+```
+
+### Dienste maskieren, so dass sie nicht gestartet werden können 
+
+```
+systemctl mask apache2
+## kann jetzt gestartet werden
+systemctl start apache2
+
+## de-maskieren 
+systemctl unmask apache2 
+## kann wieder gestaret werden
+systemctl start apache2
+```
+
+### systemctl Cheatsheet 
+
+  * https://access.redhat.com/sites/default/files/attachments/12052018_systemd_6.pdf
+
 
 ### journalctl
+
+
+### journalctl 
+
+```
+## ubuntu
+journalctl -u ssh.service 
+## centos
+journalctl -u sshd.service
+
+## sehr schön um alle felder zu sehen 
+journalctl -o json-pretty 
+
+## alles was pid xy
+journalctl _PID=5 
+
+## alles seit gestern 
+journalctl --since yesterday 
+journalctl --since now 
+journalctl --since today
+## mit datum -> hier wichtig, dass richtige format
+## Mindestens Tag oder Tag und Uhrzeit (ohne sekunden)
+## nur Stunde geht nicht
+journalctl --since "2022-08-17 00:05"
+
+## nur neuen Sachen / Veränderungen ausgeben
+journalctl -f -u apache2.service 
+
+
+```
+
+### Help-pages 
+
+```
+man journalctl
+man systemd.journal-fields
+```
 
 
 ### Show all boots 
@@ -241,6 +426,7 @@ lines 1-1/1 (END)
 
 ### Journal persistent 
 
+  * Update: Ubuntu 22.04 ist per default persistent !!!
   * Normalerweise (auf den meisten Systemen), überlebt das Journal kein Reboot 
  
 ```
@@ -260,27 +446,236 @@ systemctl restart systemd-journal-flush.service
 SystemMaxUse=1G 
 ```
 
-### journalctl 
+## Arbeiten auf der Bash und unixtools
+
+### Arbeiten mit pipes
+
+
+### Beispiele 
 
 ```
-## ubuntu
-journalctl -u ssh 
-## centos
-journalctl -u sshd 
+## Ausgabe an einen Pager schicken 
+ls -la | less 
 
-## alles was pid xy
-journalctl _PID=5 
 
-## alles seit gestern 
-journalctl --since yesterday 
-
-## sehr schön um alle felder zu sehen 
-journalctl -o json-pretty 
 ```
 
-<div class="page-break"></div>
+### Arbeiten mit grep
+
+
+### Beispiele 
+
+```
+## alle Zeilen in den tcp vorkommt 
+cat /etc/services | grep tcp 
+## alle Zeilen in denen tcp nicht vorkommt
+cat /etc/services | grep -v tcp 
+## alle Zeilen in denen tcp nicht vorkommt
+## egal ob gross oder klein geschrieben.
+cat /etc/services | grep -iv TCP 
+
+cat /etc/services | grep '#'
+cat /etc/services | grep "#"
+cat /etc/services | grep "^#"
+## alle Zeilen, die am Anfang der Zeile kein # haben 
+cat /etc/services | grep -v "^#"
+cat /etc/services | grep -v "^#" > /root/services
+cat /etc/services | grep -v "^#" | head -n 20
+
+cat /etc/services | grep -v "s$"
+## alle Zeilen die als letztes Zeichen ein s haben 
+cat /etc/services | grep  "s$"
+
+```
+
+### Ergebnis und 1 Zeile danach 
+
+```
+apt search apache | grep -A 1 ^apache
+## Alternativ für -B 10 davor (10 Zeilen davor) 
+
+```
+
+### Anzahl der Vorkommen anzeigen 
+
+```
+ps aux | grep -c apache
+```
+
+
+### Recursive Suchen (grep -r) - Schweizer Taschenmesser 
+
+```
+grep -r "PermitRootLogin" /etc
+
+## Mit Zeilennumber 
+grep -nr "PermitRootLogin" /etc
+
+```
+
+### Arbeiten mit less
+
+
+### Open a file with less 
+
+```
+## 
+less /etc/services 
+
+## Why ? 
+## Leichtere Navigation 
+```
+
+### Pipen mit less (ausgabe an less schicken) 
+
+```
+ls -la | less 
+cat /etc/services | less 
+```
+
+### Suchen in less 
+```
+##Innerhalb von less
+/suchbegriff + RETURN
+## nächstes Suchergebnis
+n 
+```
+
+###  Springen ans Ende/an den Anfang  
+```
+## Innerhalb von less
+## ans Ende 
+G 
+## an den Anfang 
+1g 
+## zu einer bestimmten Zeile (Zeile 5)  
+5g 
+```
+
+### In die Hilfe rein 
+
+```
+h 
+## wieder raus
+q
+```
+
+## Administrationsaufgaben / Major-Upgrade
+
+### Hostname setzen
+
+
+```
+## please do it as root user  
+hostnamectl
+hostnamectl set-hostname server1.training.local 
+## only reflects after new login 
+su - 
+
+```
+
+### Neue Festplatte konfigurieren und einbinden
+
+
+### Walkthrough 
+
+```
+## Schritt 1: Platte in virtualbox oder gui-interface anlegen 
+
+## Schritt 2: Platte identifizieren
+lsblk 
+
+## Schritt 3: Platte partitionieren 
+## sdb platte auswählen
+parted /dev/sdb
+
+mkpart /dev/sdb1
+mklabel gpt
+mkpart data2 ext4 2048s 500M # data2 ist name der Partition bei gpt 
+quit 
+
+## Schritt 4: Partition formatiert 
+lsblk # Partition identfiziert 
+mkfs.ext4 /dev/sdb1 
+
+## Schritt 5: Mount-Punkt erstellen 
+mkdir /mnt/platte
+
+## Schritt 6: einhängen und aushängen
+mount /dev/sdb1 /mnt/platte 
+## Add-on: Eingehängte Partitionen anzeigen 
+mount 
+
+## Aushängen 
+umount /mnt/platte 
+
+## Schritt 7: Persistent konfiguriren
+## Eintragen in /etc/fstab
+/dev/sdb1 /mnt/platte ext4 defaults 0 0 
+
+## Schritt 8: Test, ob fstab gut ist (keine Fehler) 
+mount -av # v steht für geschwätzig.
+
+## Wenn das klappt: Schritt 9 
+reboot
+
+## Nach dem Rebooten 
+mount | grep platte  # taucht platte hier auf ? 
+
+```
+
+### Upgrade auf nächste Release
+
+
+### Prerequsites
+
+```
+Sicherstellen, dass unser aktuelles System auf dem Stand der alten Release
+apt update
+apt upgrade
+apt dist-upgrade
+
+do-release-upgrade 
+
+```
+
+### Auslastungsanalyse Netzwerk, Festplatte, CPU
+
+
+### Top nach CPU - Auslastung 
+
+```
+## High to low
+top -o +%CPU
+```
+
+### Top nach Speicher - Auslastung 
+
+```
+top -o +%MEM
+
+```
+
+### Netzwerkauslastung 
+
+```
+bmon 
+```
+
+### Plattenauslastung 
+
+```
+iotop
+## Sortierung : 
+## Pfeiltaste links und rechts
+## R - reverse
+
+```
+
 
 ## Bash und Bash Programmierung 
+
+### Bash - Variablen
 
 ### Bash - Grundlegende Befehle der Systemadministration
 
@@ -300,8 +695,6 @@ lslbk --fs # zeigt uuid und filesystem - typ
 
 ```
 
-
-<div class="page-break"></div>
 
 ### Bash Programmierung
 
@@ -364,7 +757,7 @@ nobleprog@jochen-g14d:~$ echo $?
 0
 nobleprog@jochen-g14d:~$ man test
 
-## Be careful with spaces after [ and before ] (must have) 
+## Be careful with spaces after [ and before ](must have) 
 nobleprog@jochen-g14d:~$ [! -d /etc2]
 [!: command not found
 nobleprog@jochen-g14d:~$ [ ! -d /etc2 
@@ -418,7 +811,94 @@ done
 
 ```
 
-<div class="page-break"></div>
+### Bash script Beispiel
+
+
+### /etc/auswertung.conf 
+
+```
+DATUM=$(date +"%Y-%m-%d")
+LOG_BASE_DIR=/var/log/auswertung
+LOGTO=$LOG_BASE_DIR"/"$DATUM".log"
+```
+
+### /usr/local/bin/caller.sh
+
+```
+##!/bin/bash
+
+##echo "Scriptname" $0
+##echo "Parameter 1" $1
+##echo "PArameter 2" $2
+##echo "Parameter @- alle parameter" $@
+##echo "Parameter Anzahlt" $#
+
+## . /etc/auswertung.conf
+source /etc/auswertung.conf
+
+###
+## Preparation
+####
+
+if test ! -d $LOG_BASE_DIR
+then
+  echo "lege verzeichnis auswertung an"
+  mkdir $LOG_BASE_DIR
+else
+  echo "basedir existiert bereits"
+fi
+
+###
+## Log function
+mlog(){
+  echo "[$(date +'%Y-%m-%d') $(hostname)] $1" >> $LOGTO
+
+}
+
+mlog "Alles Auf Anfang ...."
+
+
+let COUNT=0
+
+cd /etc
+for i in a*
+do
+  if test -f $i
+  then
+    mlog "Datei gefunden: $i"
+    let COUNT=COUNT+1
+  fi
+done
+
+echo "Wieviel files"$COUNT
+
+## /var/log/auswertung
+let WIEOFT=0
+
+while test $WIEOFT -lt 5
+do
+   FRAGE="Wie heisst Du ?"
+
+   if [ $WIEOFT -gt 0 ]
+   then
+     FRAGE="Der Name gefällt mir nicht. Wie heisst Du sonst noch ?"
+   fi
+
+
+   echo $FRAGE
+   read NAME
+   echo "o.k. Du heisst $NAME"
+   let WIEOFT=WIEOFT+1
+done
+
+```
+
+```
+cd /usr/local/bin
+chmod u+x caller.sh
+## Aufruf 
+caller.sh
+```
 
 ## Kernel
 
@@ -440,10 +920,8 @@ root@ubuntu01:/proc/sys/net/ipv4#
 
 ## At boot time 
 
-  * Centos/Redhat: man kernel-command-line
+  * Centos/Redhat: <todo>
   * Ubuntu/Debian: man kernel-command-line 
-
-<div class="page-break"></div>
 
 ### Kernel kompilieren
 
@@ -458,8 +936,6 @@ root@ubuntu01:/proc/sys/net/ipv4#
   * https://www.tecmint.com/compile-linux-kernel-on-centos-7/
   * -- bitte nicht die Original-Anleitung von centos im wiki verwenden. 
 
-<div class="page-break"></div>
-
 ## Find
 
 ### Find
@@ -472,8 +948,6 @@ root@ubuntu01:/proc/sys/net/ipv4#
 find / -name tmpfiles.d -type d 
 ```
 
-<div class="page-break"></div>
-
 ## Verzeichnisse und Dateien 
 
 ### Grundlegende Ordnerstruktur
@@ -482,8 +956,6 @@ find / -name tmpfiles.d -type d
   * https://de.wikipedia.org/wiki/Filesystem_Hierarchy_Standard
   
  
-
-<div class="page-break"></div>
 
 ### Grundlegende Dateioperationen
 
@@ -591,8 +1063,6 @@ cp -a datei datei_neu
 cp -r verzeichnis verteichnis_neu 
 ```
 
-<div class="page-break"></div>
-
 ### Ausgabe von Dateien
 
 
@@ -604,8 +1074,6 @@ cat filename | less
 ## direkt mit pager 
 less filename 
 ```
-
-<div class="page-break"></div>
 
 ### Ausgabe von gepackten Files / Entpacken von Files
 
@@ -619,7 +1087,15 @@ cd /root
 gzip -d syslog.2.gz 
 ```
 
-<div class="page-break"></div>
+### Arbeiten mit Dateien und Verzeichnissen
+
+
+### Beispiele 
+
+```
+## Leere Datei anlegen 
+touch heute.txt 
+```
 
 ## Suche und Filtern 
 
@@ -677,8 +1153,6 @@ updatedb
 locate -e training.sh 
 ```
 
-<div class="page-break"></div>
-
 ### Übung mit Dateien filtern
 
 
@@ -695,12 +1169,111 @@ das Heimatverzeichnis des Benutzer nobleprog kopieren.
 8. Alle Zeilen aus services ausgeben, die kein Kommentar (am Anfang der Zeile) enthalten und in die Datei kommentarlos im Heimatverzeichnis des Benutzer nobleprog schreiben.
 ```
 
-<div class="page-break"></div>
-
 ## Paketmanager (Ubuntu/Debian) und Software installieren
 
 ### apt/dpkg
 
+
+### Alle Pakete anzeigen, die installiert sind auf dem System 
+
+```
+dpkg -l 
+## oder 
+apt list --installed
+```
+
+### Alle Paket die zur Verfügung stehen 
+
+```
+apt list 
+```
+
+### Wo sind die Repos konfiguriert 
+
+```
+cat /etc/apt/sources.list 
+cd /etc/apt/sources.list.d 
+```
+
+
+### Paket deinstallieren und aufräumen 
+
+```
+## mit Konfigurationsdateien deinstallieren
+apt purge mariadb-server-10.3
+## Konfgurationsdateien stehen lassen
+apt remove mariadb-server-10.3 
+
+## Aufräumen / alle Pakete die nicht mehr benötigt werden
+## nur binaries deinstalliren (alles ausser Konfiguration) 
+apt autoremove 
+
+## Abhängige Pakete mit Konfigurationsdateien deinstallieren
+apt autopurge
+```
+
+### Pakete händisch mit dpkg installieren 
+
+```
+## Schritt 1: Im Browser
+## Paket online finden und Link kopieren (Browser - Rechte Mauataste Link kopieren) 
+
+## Schritt 2: auf dem Linux Server
+sudo apt install wget
+cd /usr/src
+wget http://archive.ubuntu.com/ubuntu/pool/main/a/acl/acl_2.2.53-10build1_amd64.deb
+sudo dpkg -i acl_2.2.53-10build1_amd64.deb
+```
+
+### Pakete mit apt search suchen 
+
+```
+## Vorbereitung
+apt update
+
+## suche nache apache 
+apt search apache 
+## mit pager
+apt search apache | less 
+
+## Alle Paket in denen apache am Anfang der Zeile fehlt 
+apt search ^apache | less
+
+```
+
+### Installieren mit apt install 
+
+```
+## mit genauem Namen 
+apt install apache2 
+```
+
+### Liste der Files aus dem Paket (wenn installiert)
+
+```
+dpkg -L openssh-server 
+
+```
+
+### Paket runterladen, wenn bereits installiert 
+
+```
+apt install -d --reinstall openssh-server # -d steht für download-only
+## Lädt das Paket unter 
+## /var/cache/apt/archives runter 
+
+```
+
+### Welche Dateien sind im Paket, die ausgerollt werden ? (ohne Installation) 
+
+```
+cd /var/cache/apt/archives 
+dpkg --contents openssh-server-xyz.deb # im gleichen Verzeichnis oder vollen Pfad dorthin
+## oder Paket haben händisch in ein anderes Verzeichnis runtergeladen (z.B. mit wget)
+dpkg -c /usr/src/openssh-server-xyz.deb
+
+
+```
 
 ### Show all files/directories being installed by package 
 
@@ -741,7 +1314,7 @@ apt remove package  # leave config-files
 apt purge package # also delete config files
 ```
 
-<div class="page-break"></div>
+
 
 ### Software installieren
 
@@ -796,7 +1369,24 @@ apt upgrade
 apt dist-upgrade  
 ```
 
-<div class="page-break"></div>
+### Aus Quelltext installieren
+
+
+```
+## Walkthrough 
+## Schritt 1: Download-Link in Browser kopieren (rechte Maustaste) 
+
+## Schritt 2: 
+cd /usr/src 
+ # falsche Dateiname -> umbenannt.
+wget https://github.com/phayes/geoPHP/tarball/master
+mv master master.tar.gz
+## Schritt 3: Sicherheitsverzeichnis anlegen und entpacken
+mkdir foo
+mv master.tar.gz foo
+cd foo
+tar xvf master.tar.gz
+```
 
 ### dnf
 
@@ -814,8 +1404,6 @@ dnf list --installed
 dnf list 
 ```
 
-
-<div class="page-break"></div>
 
 ### unattendend upgrades
 
@@ -852,8 +1440,6 @@ APT::Periodic::AutocleanInterval "7"
 0 directories, 3 files
 ```
 
-<div class="page-break"></div>
-
 ## Filesysteme  
 
 ### xfsdump und -restore
@@ -877,8 +1463,6 @@ APT::Periodic::AutocleanInterval "7"
 ## Bedeutet, was wurde bereits gesichert 
 xfsdump -I 
 ```
-
-<div class="page-break"></div>
 
 ## Sudo 
 
@@ -960,8 +1544,6 @@ su - wartung
 sudo systemctl restart httpd 
 ```
 
-<div class="page-break"></div>
-
 ## ssh und scp 
 
 ### ssh
@@ -976,8 +1558,6 @@ ssh 11trainingdo@56.34.12.11
 ```
 
 
-<div class="page-break"></div>
-
 ### scp
 
 
@@ -990,8 +1570,6 @@ TEMPDIR=$(mktemp -d)
 scp -r trn01@10.10.11.126:/home/trn01/ $TEMPDIR
 ```
 
-
-<div class="page-break"></div>
 
 ### ssh Kommandos auf Zielsystem ausführen
 
@@ -1024,8 +1602,6 @@ ssh trn01@10.10.11.126 'bash -s' < lokalesscript.sh
 cat lokalesscript.sh | ssh trn01@10.10.11.126
 ```
 
-<div class="page-break"></div>
-
 ## Bash und Bash-Programmierung 
 
 ### Strings escapen
@@ -1036,8 +1612,6 @@ TEST='Mooshäusl'\''s Fensterbau'
 echo $TEST 
 
 ```
-
-<div class="page-break"></div>
 
 ### Arbeiten auf der Bash
 
@@ -1201,8 +1775,6 @@ drwxr-xr-x 27 nobleprog nobleprog 4096 Oct  6 11:17 ..
 ls: cannot open directory 'newdir2': Permission denied
 ```
 
-<div class="page-break"></div>
-
 ## Editoren
 
 ### Vi/vim
@@ -1272,7 +1844,20 @@ ESC + u # eigentlich reicht 1x Escape
 ESC + 1000dd # ESC - Taste drücken, dann 1000 eingeben, dann dd (sie sehen die 1000 nicht auf dem Bildschirm) 
 ```
 
-<div class="page-break"></div>
+#### Neues Fenster und Fenster wechseln 
+
+```
+## innerhalb von vi 
+ESC + :  -> vsplit # aktuelles Fenster wird kopiert 
+## Fenster wechseln 
+ESC + : wincmd w 
+## oder 
+STRG + w w 
+```
+
+#### Cheatsheet
+
+http://www.atmos.albany.edu/daes/atmclasses/atm350/vi_cheat_sheet.pdf
 
 ## Logs 
 
@@ -1302,11 +1887,33 @@ or
 
 ```
 
-<div class="page-break"></div>
-
 ## Firewall
 
 ### firewalld
+
+
+### Install firewalld and restrict ufw 
+
+```
+## Schritt 1: ufw deaktivieren 
+systemctl stop ufw
+systemctl disable ufw 
+ufw disable # zur Sicherheit 
+ufw status
+## -> inactive # this has to be the case 
+
+## Schritt 2: firewalld
+apt update
+apt install -y firewalld
+
+## Schritt 3: firewalld 
+apt install firewalld 
+systemctl start firewalld 
+systemctl enable firewalld 
+systemctl status firewalld 
+systemctl status ufw 
+
+```
 
 
 ### Is firewalld running ?
@@ -1320,14 +1927,7 @@ firewall-cmd --state
   
   * firewall-cmd 
 
-### Best way to add a new rule 
-```
-## Step1: do it persistent -> written to disk 
-firewall-cmd --add-port=82/tcp --persistant 
 
-## Step 2: + reload firewall 
-firewall-cmd --reload 
-```
 
 ### Zones documentation 
 
@@ -1347,14 +1947,7 @@ firewall-cmd --get-active-zones
 ## in our case empty 
 ```
 
-### Show information about all zones that are used 
-```
-firewall-cmd --list-all 
-firewall-cmd --list-all-zones 
-```
-
-
-### Add Interface to Zone ~ Active Zone 
+### Add Interface to Zone = Active Zone 
 
 ```
 firewall-cmd --zone=public --add-interface=enp0s3 --permanent 
@@ -1364,6 +1957,14 @@ public
   interfaces: enp0s3
 
 ```
+
+### Show information about all zones that are used 
+```
+firewall-cmd --list-all 
+firewall-cmd --list-all-zones 
+```
+
+
 ### Default Zone 
 
 ```
@@ -1371,39 +1972,43 @@ public
 ## .. add things to this zone 
 firewall-cmd --get-default-zone
 public
-
 ```
 
-### Show services 
+### Show services / Info
 ```
 firewall-cmd --get-services 
+firewall-cmd --info-service=http
 ```
+
 ### Adding/Removing a service 
 
 ```
-firewall-cmd --permanent --zone=public --add-service=ssh
+## Version 1 - more practical 
+## set in runtime 
+firewall-cmd --zone=public --add-service=http
+firewall-cmd --runtime-to-permanent 
+
+## Version 2 - less practical
+firewall-cmd --permanent --zone=public --add-service=http
 firewall-cmd --reload 
+```
+
+```
+### Service wieder entfernen
 firewall-cmd --permanent --zone=public --remove-service=ssh
 firewall-cmd --reload 
 ```
 
-### Walkthrough apache / adding Port (Centos 8 / Redhat 8 with enabled SELinux (by default))
+### Best way to add a new rule 
+```
+## Step1: do it persistent -> written to disk 
+firewall-cmd --add-port=82/tcp --permanent  
 
+## Step 2: + reload firewall 
+firewall-cmd --reload 
 ```
 
-## /etc/httpd/conf/httpd.conf 
-## add port Listen 82 
-## Try to restart - not working port cannot be bound 
-sealert -a /var/log/audit/audit.log 
-## we will get this info to allow this port 
-semanage port -a -t http_port_t -p tcp 82
-## start apache 
-systemctl start httpd
-firewall-cmd --add-port=82/tcp --zone=public --permanent
-
-```
-
-### Enable / Disabled icm 
+### Enable / Disabled icmp 
 ```
 firewall-cmd --get-icmptypes
 ## none present yet 
@@ -1438,9 +2043,6 @@ firewall-cmd --zone=public --list-rich-rules
 ## persist all runtime rules 
 firewall-cmd --runtime-to-permanent
 
-
-
-
 ```
 
 
@@ -1448,8 +2050,6 @@ firewall-cmd --runtime-to-permanent
 
   * https://www.linuxjournal.com/content/understanding-firewalld-multi-zone-configurations#:~:text=Going%20line%20by%20line%20through,or%20source%20associated%20with%20it.
   * https://www.answertopia.com/ubuntu/basic-ubuntu-firewall-configuration-with-firewalld/
-
-<div class="page-break"></div>
 
 ### ufw
 
@@ -1555,8 +2155,6 @@ ufw reset
 
   * https://www.digitalocean.com/community/tutorials/how-to-set-up-a-firewall-with-ufw-on-ubuntu-20-04-de
 
-<div class="page-break"></div>
-
 ## Hilfe 
 
 ### Hilfe
@@ -1599,9 +2197,7 @@ apropos copy files | grep copy | less
 
 ```
 
-<div class="page-break"></div>
-
-## Benutzer verwalten 
+## Benutzer verwalten / Rechte
 
 ### Benutzer
 
@@ -1667,7 +2263,51 @@ usermod -s /usr/sbin/nologin training
 sudo userdel training 
 ```
 
-<div class="page-break"></div>
+### Rechte
+
+
+### Arten 
+
+```
+r = Lesen 
+w = Schreiben
+x = Ausführen 
+```
+
+### Aufbau triple 
+
+```
+kurs@ubuntu2004-101:~$ # rwx | rw- | r--
+kurs@ubuntu2004-101:~$ #  u    g      o
+kurs@ubuntu2004-101:~$ # 421 | 42- | 4--
+kurs@ubuntu2004-101:~$ #  7  |  6  | 4
+
+## rwx | rw- | r--
+##  u    g      o
+## 421 | 42- | 4--
+##  7  |  6  | 4
+```
+
+### Bedeutung Oktalzahlen 
+
+```
+## rwx 
+## r = 4, w = 2, x = 1
+```
+
+### Beispiele 
+
+```
+- w -  
+0 2 0  = 020 
+```
+
+
+### Berechtigungen mit Symbolen setzen 
+
+```
+chmod g+w,o+r testfile
+```
 
 ## Hilfreiche Programme 
 
@@ -1680,8 +2320,6 @@ sudo userdel training
 wc -l dateiname 
 cat /etc/services | wc -l 
 ```
-
-<div class="page-break"></div>
 
 ## Prozesse
 
@@ -1833,7 +2471,7 @@ kill -9 1234
 ## Prozess läuft komplett im Hintergrund wenn keine Ausgaben
 ## Ich kann weiter arbeiten im Terminal 
 starter.sh & 
-[1] 123607 # 1 = jobnr (nur in dieser session) // 123607 in allen Sessions verfügbar 
+[1](nur in dieser session) // 123607 in allen Sessions verfügbar 
 
 ```
 
@@ -1872,9 +2510,7 @@ kill 1234
 
 
 
-<div class="page-break"></div>
-
-## Dienste verwalten 
+## Dienste verwalten /debuggen 
 
 ### Dienste
 
@@ -1907,9 +2543,181 @@ systemctl list-units -t service
 journalctl -u apache2 
 ```
 
-<div class="page-break"></div>
+### Dienste debuggen
 
-## Fragen,Tipps und Tricks
+
+### Walkthrough 
+
+```
+## Dienst startet nicht / nach Ausführen von systemctl restart wird Fehlermeldung ausgegeben
+systemctl restart mariadb.service 
+
+## Schritt 1 : status -> was sagen die logs (letzte 10 Zeilen) 
+systemctl status mariadb.service 
+
+## Nicht fündig-> Schritt 2:
+jourrnalctl -xe
+
+## Nicht fündig -> Schritt 3:
+journalctl -u mariadb.service 
+
+## Nicht fündig -> Schritt 4:
+## Spezifisches Log von Dienst suchen 
+## und evtl. LogLevel von Dienst hochsetzen
+## z.B. bei mariadb (durch Internetrecherche herausfinden) 
+less /var/log/mysql/error.log 
+
+## Nicht fündig -> Schritt 5
+## Allgemeines Log
+## Debian/Ubuntu 
+/var/log/syslog
+## REdhat/Centos 
+/var/log/messages 
+```
+
+### Wie verfahren bei SystemV 
+
+```
+Wie bei walkthrough aber ab Schritt 4
+```
+
+### Find error in logs quickly
+
+```
+cd /var/log/mysql 
+## -i = case insensitive // egal ob gross- oder kleingeschrieben
+cat error.log | grep -i error
+```
+
+### Schweizer Taschenmesser der Suche 
+
+
+```
+## Fehler ist gummitulpe - option - falsch in Konfigurationsdatei, aber wo ? 
+grep -r gummitulpe /etc
+
+```
+
+## Timer 
+
+### Beispiel - Regelmäßiges Scannen mit nmap
+
+
+### Walkthrough 
+
+```
+## Schritt 1:
+## /usr/local/sbin/scan.sh
+[root@centos8-01 sbin]# cat scan.sh
+##!/bin/bash
+IP_RANGE=192.168.56.100-103
+nmap -A -T4 $IP_RANGE
+
+## Schritt 2: service erstellen
+## systemctl edit --force --full scan.service 
+## /etc/systemd/system/scan.service
+[Unit]
+Description=nmap scanning of environment
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/scan.sh
+##RemainAfterExit=true
+StandardOutput=journal
+
+### nach dem Speichern kann man das bereits testen mit 
+## systemctl start scan.service 
+### Ergebnis im Journal 
+## journalctl -u scan.service 
+
+## Schritt 3: 
+## Timer angelegt :
+## systemctl edit --force --full scan.timer 
+## /etc/systemd/system/scan.timer
+[Unit]
+Description=Timer for Scan Service
+
+[Timer]
+OnCalendar=*:0/5
+
+[Install]
+WantedBy=basic.target
+
+## Schritt 4:
+## Timer starten und aktivieren
+systemctl enable scan.timer 
+systemctl start scan.timer 
+
+## Schritt 5:
+## Beobachten und glücklich sein 
+systemctl list-timers 
+## <- taucht der Timer dort auf 
+
+## Schritt 6:
+## Reboot 
+## und Danch : taucht der timer auf ? 
+systemctl list-timers 
+```
+
+## Datensicherung   
+
+### Datensicherung mit tar
+
+
+### Sichern / Backup 
+
+```
+cd /usr/src
+tar cfvz _etc.20220617.tar.gz /etc
+tar tf _etc.20220617.tar.gz
+```
+
+
+### Entpacken (Vorbereitung) 
+
+```
+mkdir foo
+mv _etc.20220617.tar.gz foo
+cd foo
+```
+
+
+
+### Entpacken (Variante 1)
+
+
+```
+tar xvf _etc.20220617.tar.gz
+
+## Aufräumen
+rm -fR etc/
+```
+
+
+
+
+
+
+### Entpacken (Variante 2) 
+
+```
+tar tf _etc.20220617.tar.gz
+
+## Achtung Fehler - weil falscher Pfad 
+tar xvf _etc.20220617.tar.gz etc/sysctl.d/99-sysctl.conf /etc/services
+echo $?
+
+## So geht's 
+tar xvf _etc.20220617.tar.gz etc/sysctl.d/99-sysctl.conf etc/services
+ls -la
+```
+
+
+### Referenz:
+
+  * https://linuxconfig.org/how-to-create-incremental-and-differential-backups-with-tar
+
+## Fragen,Tipps und Tricks / Howtos
 
 ### Questions
 
@@ -1975,8 +2783,6 @@ The answer is in Numpad in PuTTY while using vi [Cialug]:
 In the configuration, go to Terminal->Features and check "Disable application keypad mode". Save the settings and enjoy a numeric pad that works!
 ```
 
-<div class="page-break"></div>
-
 ### Tipps und Tricks
 
 
@@ -2021,4 +2827,10 @@ tree /home/centos01
 grep -r Listen /etc/httpd
 ```
 
-<div class="page-break"></div>
+### Advanced Bash Scripting
+
+  * https://tldp.org/LDP/abs/html/
+
+### Bash Scripting
+
+  * https://tldp.org/HOWTO/Bash-Prog-Intro-HOWTO.html
